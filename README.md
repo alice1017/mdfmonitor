@@ -31,13 +31,13 @@ watcher.add_file("sample.txt",)
 watcher.add_files(os.listdir("."),)
 
 # start watch using with sentence
-# you can write anything under with sentence.
+# you can write anything under for sentence.
 # If watcher catch file modification, watcher run anything you written
-for mdf in watcher.watch():
+for modification in watcher.watch():
     
-    print mdf.name.center(20, "=")
+    print modification.name.center(20, "=")
     print "Catch the Modification!!"
-    print "New timestamp: %s" % mdf.timestamp
+    print "New timestamp: %s" % modification.new_timestamp
     print "="*20
 
 ```
