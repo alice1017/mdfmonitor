@@ -4,12 +4,6 @@
 import os
 import sys
 
-class Logger(object):
-
-    def __init__(self):
-
-        pass
-
 class Watcher(object):
 
     def __init__(self):
