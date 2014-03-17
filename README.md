@@ -9,7 +9,7 @@ The **watcher** is Python module  about watching files modification using timest
 First, import this module.
 Second, create `Watcher` class's instance.
 Third, append file or files to instance.
-Fourth, using Python with sentence, You can write anything under with sentence.
+Fourth, using Python for sentence, You can write anything under for sentence.
 
 ```python
 #!/usr/bin/python
