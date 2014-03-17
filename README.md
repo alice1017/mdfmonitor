@@ -1,4 +1,4 @@
-# watcher - file watch client
+# watcher - Watch the file moification
 
 The **watcher** is Python module  about watching files modification using timestamp.
 
