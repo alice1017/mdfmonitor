@@ -15,7 +15,7 @@ Fourth, using Python with sentence, You can write anything under with sentence.
 #!/usr/bin/python
 
 import os
-from watcher import Watcher, Logger
+from watcher import Watcher
 
 files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
 
@@ -23,17 +23,17 @@ files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
 watcher = Watcher()
 
 # append file to watcher instance
-watcher.add_file("sample.txt", logger=Logger)
+watcher.add_file("sample.txt",)
 
 # or 
 
 # append files to watcher instance
-watcher.add_files(os.listdir("."), logger=Logger)
+watcher.add_files(os.listdir("."),)
 
 # start watch using with sentence
 # you can write anything under with sentence.
 # If watcher catch file modification, watcher run anything you written
-with watcher.watch() as mdf:
+for mdf in watcher.watch():
     
     print mdf.name.center(20, "=")
     print "Catch the Modification!!"
