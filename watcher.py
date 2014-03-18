@@ -4,6 +4,7 @@
 import os
 import sys
 import time
+import difflib
 
 class DuplicationError(BaseException):
     """Raise this Error if you add duplication file."""
@@ -189,5 +190,15 @@ class FileModificationObject(object):
 
         self.manager = manager
 
+    def show_diff(self):
 
+        for line  in difflib.unified_diff(
+                        self.old_fbody.splitlines(),
+                        self.new_fbody.splitlines(),
+                        "old/"+self.file, "new/"+self.file,
+                        self._strftime(self.old_mtime),
+                        self._strftime(self.new_mtime)):
+            print line
 
+    def _strftime(self, etime):
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime)),
