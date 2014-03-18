@@ -4,6 +4,8 @@
 import os
 import sys
 
+class DuplicationError(BaseException): pass
+
 class Watcher(object):
 
     def __init__(self):
@@ -17,6 +19,9 @@ class Watcher(object):
 
         else:
             raise IOError("file not found.")
+
+        if file in self.f_repository:
+            raise DuplicationError("file already added.")
 
     def add_files(self, filelist, **kwargs):
 
