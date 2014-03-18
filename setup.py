@@ -11,7 +11,6 @@ setup(
     version=__version__,
     url="https://github.com/alice1017/watcher",
     description="The watcher can monitoring the file modification.",
-    long_description=open("README.md").read(),
     py_modules=['watcher'],
     classifiers=[
         "Development Status :: 4 - Beta",
