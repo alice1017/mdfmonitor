@@ -5,7 +5,10 @@ import os
 import sys
 import time
 
-class DuplicationError(BaseException): pass
+class DuplicationError(BaseException):
+    """Raise this Error if you add duplication file."""
+
+    pass
 
 class Watcher(object):
 
@@ -39,6 +42,7 @@ class Watcher(object):
         
        monitor = FileModificationMonitor(self.f_repository, sleep) 
        return monitor.monitoring()
+
 
 class FileModificationMonitor(object):
 
@@ -125,7 +129,7 @@ class FileModificationObjectManager(object):
 
     def __init__(self):
 
-        self.obj_repository = []
+        self.o_repository = []
 
         self.__is_iterable = False
         self.__r_pointer = 0
@@ -133,7 +137,7 @@ class FileModificationObjectManager(object):
 
     def add_object(self, obj):
 
-        self.obj_repository.append(obj)
+        self.o_repository.append(obj)
 
         obj._set_manager(self)
 
@@ -155,10 +159,10 @@ class FileModificationObjectManager(object):
             raise TypeError(
                         "'%s' object is not iterable" % self.__class__.__name__)
 
-        if self.__r_pointer == len(self.obj_repository):
+        if self.__r_pointer == len(self.o_repository):
             raise StopIteration
 
-        result = self.obj_repository[self.__r_pointer]
+        result = self.o_repository[self.__r_pointer]
         self.__r_pointer += 1
         return result
         
@@ -184,5 +188,6 @@ class FileModificationObject(object):
     def _set_manager(self, manager):
 
         self.manager = manager
+
 
 
