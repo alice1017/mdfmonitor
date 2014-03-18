@@ -137,7 +137,7 @@ class FileModificationObjectManager(object):
 
         obj._set_manager(self)
 
-        if not __is_iterable:
+        if not self.__is_iterable:
             self.__is_iterable = True
 
         return self
@@ -184,12 +184,5 @@ class FileModificationObject(object):
     def _set_manager(self, manager):
 
         self.manager = manager
-
-
-
-
-
-
-
 
 
