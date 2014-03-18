@@ -32,7 +32,7 @@ class Watcher(object):
        monitor = FileMonitor(self.f_repository, sleep) 
        return monitor.monitoring()
 
-class FileMonitor(object):
+class FileModificationMonitor(object):
 
     def __init__(self, f_repository, sleep=5):
 
@@ -42,25 +42,78 @@ class FileMonitor(object):
     def monitoring(self):
 
         manager = FileModificationManager()
+        
+        timestamps = {}
+        filebodies = {}
+        
+        # register original timestamp and filebody to dict
+        for file in self.f_repository:
+            timestamps[file] = self._get_mtime(file)
+            filebodies[file] = open(file).read()
 
 
         while True:
 
-            # process of file modification catching
-
             # file modification to object
-            new_obj = FileModificationObject()
+            for file in self.f_repository:
+                
+                mtime = timestamps[file]
+                fbody = filebodies[file]
+                
+                checker = self._check_modify(file, mtime, fbody)
+                
+                # file not modify -> continue
+                if not checker:
+                    continue
+                
+                # file modifies -> create the modification object
+                
+                new_mtime = self._get_mtime(file)
+                new_fbody = open(file).read()
+                
+                obj = FileModificationObject(
+                        file,
+                        (mtime, new_mtime),
+                        (fbody, new_fbody) )
+                
+                # overwrite new timestamp and filebody
+                timestamps[file] = new_mtime
+                filebodies[file] = new_fbody
+                
 
-            # append file modification object to manager
-            manager.add_object(new_obj)
+                # append file modification object to manager
+                manager.add_object(obj)
 
-            # return new modification object
-            yield new_obj
-
+             # return new modification object
+                yield obj
+                
             time.sleep(sleep)
+            
+            
+    def _get_mtime(self, file):
+        
+        return os.stat(file).st_mtime
+        
+        
+    def _check_modify(self, file, o_mtime, o_fbody):
+        
+        n_mtime = self._get_mtime(file)
+        n_fbody = open(file).read()
+
+        if n_mtime == o_mtime:
+            return False
+
+        else:
+
+            if n_fbody == o_fbody:
+                return False
+
+            else:
+
+                return True
 
 
-class FileModificationManager(object):
+class FileModificationObjectManager(object):
 
     def __init__(self):
 
@@ -112,5 +165,4 @@ class FileModificationObject(object):
     def __init__(self):
 
         return
-
 
