@@ -29,7 +29,7 @@ class Watcher(object):
 
     def watch(self, sleep=5):
         
-       monitor = FileMonitor(self.f_repository, sleep) 
+       monitor = FileModificationMonitor(self.f_repository, sleep) 
        return monitor.monitoring()
 
 class FileModificationMonitor(object):
