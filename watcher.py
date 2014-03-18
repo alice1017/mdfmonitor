@@ -135,6 +135,8 @@ class FileModificationObjectManager(object):
 
         self.obj_repository.append(obj)
 
+        obj._set_manager(self)
+
         if not __is_iterable:
             self.__is_iterable = True
 
@@ -170,7 +172,21 @@ class FileModificationObjectManager(object):
 
 class FileModificationObject(object):
 
-    def __init__(self):
+    def __init__(self, file, t_mtime, t_fbody):
 
-        return
+        self.file = file
+        self.manager = None
+
+        self.new_mtime, self.old_mtime = t_mtime
+        self.new_fbody, self.old_fbody = t_fbody
+
+
+    def _set_manager(self, maager):
+
+        self.manager = manager
+
+
+
+
+
 
