@@ -41,7 +41,7 @@ class FileModificationMonitor(object):
 
     def monitoring(self):
 
-        manager = FileModificationManager()
+        manager = FileModificationObjectManager()
         
         timestamps = {}
         filebodies = {}
