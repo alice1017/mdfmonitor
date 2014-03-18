@@ -180,17 +180,20 @@ class FileModificationObject(object):
     def __init__(self, file, t_mtime, t_fbody):
 
         self.file = file
-        self.manager = None
 
         self.new_mtime, self.old_mtime = t_mtime
         self.new_fbody, self.old_fbody = t_fbody
 
+        self.manager = None
+        self.diff = self._diffgen()
 
     def _set_manager(self, manager):
 
         self.manager = manager
 
-    def show_diff(self):
+    def _diffgen(self):
+
+        contents = []
 
         for line  in difflib.unified_diff(
                         self.old_fbody.splitlines(),
@@ -198,7 +201,13 @@ class FileModificationObject(object):
                         "old/"+self.file, "new/"+self.file,
                         self._strftime(self.old_mtime),
                         self._strftime(self.new_mtime)):
-            print line
+
+            contents.append(line)
+
+        return "".join(contents)
 
     def _strftime(self, etime):
-        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime)),
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
+
+
+
