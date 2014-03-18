@@ -3,6 +3,7 @@
 
 import os
 import sys
+import time
 
 class DuplicationError(BaseException): pass
 
@@ -94,7 +95,7 @@ class FileModificationMonitor(object):
              # return new modification object
                 yield obj
                 
-            time.sleep(sleep)
+            time.sleep(self.sleep)
             
             
     def _get_mtime(self, file):
