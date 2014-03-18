@@ -23,12 +23,12 @@ files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
 watcher = Watcher()
 
 # append file to watcher instance
-watcher.add_file("sample.txt",)
+watcher.add_file("sample.txt")
 
 # or 
 
 # append files to watcher instance
-watcher.add_files(os.listdir("."),)
+watcher.add_files(os.listdir("."))
 
 # start watch using with sentence
 # you can write anything under for sentence.
