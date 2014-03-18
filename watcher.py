@@ -15,13 +15,15 @@ class Watcher(object):
     def add_file(self, file, **kwargs):
 
         if os.access(file, os.F_OK):
+
+            if file in self.f_repository:
+                raise DuplicationError("file already added.")
+
             self.f_repository.append(file)
 
         else:
             raise IOError("file not found.")
 
-        if file in self.f_repository:
-            raise DuplicationError("file already added.")
 
     def add_files(self, filelist, **kwargs):
 
