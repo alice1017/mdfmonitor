@@ -201,4 +201,4 @@ class FileModificationObject(object):
             print line
 
     def _strftime(self, etime):
-        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime)),
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
