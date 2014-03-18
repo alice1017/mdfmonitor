@@ -35,11 +35,13 @@ watcher.add_files(os.listdir("."))
 # If watcher catch file modification, watcher run anything you written
 for mdf in watcher.watch():
     
-    print mdf.file.center(20, "=")
+    print mdf.file.center(30, "=")
     print "Catch the Modification!!"
     print "Old timestamp: %s" % mdf.old_mtime
     print "New timestamp: %s" % mdf.new_mtime
-    print "="*20
+    print "manager: %s" % str(mdf.manager.o_repository)
+    print "Diff".center(30,"=")
+    print mdf.diff
 
 ```
 
