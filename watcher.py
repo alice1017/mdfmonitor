@@ -181,9 +181,12 @@ class FileModificationObject(object):
         self.new_fbody, self.old_fbody = t_fbody
 
 
-    def _set_manager(self, maager):
+    def _set_manager(self, manager):
 
         self.manager = manager
+
+
+
 
 
 
