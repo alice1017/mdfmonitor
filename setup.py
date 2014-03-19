@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 #coding: utf-8
 
-from watcher        import __version__
+from mdfmonitor     import __version__
 from distutils.core import setup
 
 setup(
-    name="watcher",
+    name="mdfmonitor",
     author="alice1017",
     author_email="genocidedragon@gmail.com",
     version=__version__,
     url="https://github.com/alice1017/watcher",
-    description="The watcher can monitoring the file modification.",
-    py_modules=['watcher'],
+    description="The mdfmonitor  can monitoring the file modification.",
+    py_modules=['mdfmonitor'],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
