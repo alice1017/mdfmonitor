@@ -22,6 +22,7 @@ files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
 # create Watcher instnce
 monitor = ModificationMonitor()
 
+<<<<<<< HEAD
 # append file to mdfmonitor instance
 monitor.add_file("sample.txt")
 
