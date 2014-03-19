@@ -20,7 +20,7 @@ from mdfmonitor import ModificationMonitor
 files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
 
 # create Watcher instnce
-monitor = Watcher()
+monitor = ModificationMonitor()
 
 # append file to mdfmonitor instance
 monitor.add_file("sample.txt")
