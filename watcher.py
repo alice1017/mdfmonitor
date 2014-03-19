@@ -57,7 +57,7 @@ class DuplicationError(BaseException):
 
     pass
 
-class Watcher(object):
+class ModificationMonitor(object):
 
     def __init__(self):
 
@@ -85,21 +85,8 @@ class Watcher(object):
         for file in filelist:
             self.add_file(file)    
 
-    def watch(self, sleep=5):
+    def monitor(self, sleep=5):
         
-       monitor = FileModificationMonitor(self.f_repository, sleep) 
-       return monitor.monitoring()
-
-
-class FileModificationMonitor(object):
-
-    def __init__(self, f_repository, sleep=5):
-
-        self.f_repository = f_repository
-        self.sleep = sleep
-
-    def monitoring(self):
-
         manager = FileModificationObjectManager()
         
         timestamps = {}
