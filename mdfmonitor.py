@@ -133,7 +133,7 @@ class ModificationMonitor(object):
              # return new modification object
                 yield obj
                 
-            time.sleep(self.sleep)
+            time.sleep(sleep)
             
             
     def _get_mtime(self, file):
@@ -237,7 +237,7 @@ class FileModificationObject(object):
 
             contents.append(line)
 
-        return "".join(contents)
+        return "\n".join(contents)
 
     def _strftime(self, etime):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
