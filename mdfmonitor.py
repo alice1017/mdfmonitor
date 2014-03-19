@@ -50,7 +50,7 @@ import sys
 import time
 import difflib
 
-__version__ = "0.1.0b"
+__version__ = "0.1.1b"
 
 class DuplicationError(BaseException):
     """Raise this Error if you add duplication file."""
