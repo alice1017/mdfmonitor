@@ -1,41 +1,47 @@
 #!/usr/bin/env python
 #coding: utf-8
 
-"""watcher - watch the file modification
+"""
+mdfmonitor - Monitor the file moification
+###############################################
 
-The **watcher** is Python module about watching files modification using timestamp.
+The **mdfmonitor** is Python module about monitoring files modification using timestamp and body.
 
+How to Use
+============
 
-## How to Use
+It's simple. 
 
-First, import this module.
-Second, create `Watcher` class's instance.
-Third, append file or files to instance.
-Fourth, using Python for sentence, You can write anything under for sentence.
+1. Import this module.
+2. Create `ModificationMonitor` class's instance.
+3. Append file or files to instance using add_file method.
+4. using Python for sentence, You can write anything under for sentence.
+
+::
 
     #!/usr/bin/python
-    
+
     import os
-    from watcher import Watcher
-    
+    from mdfmonitor import ModificationMonitor
+
     files = os.listdir(".") # >>> ['sample.txt', 'sample.py']
-    
+
     # create Watcher instnce
-    watcher = Watcher()
-    
-    # append file to watcher instance
-    watcher.add_file("sample.txt")
-    
+    monitor = Watcher()
+
+    # append file to mdfmonitor instance
+    monitor.add_file("sample.txt")
+
     # or 
-    
-    # append files to watcher instance
-    watcher.add_files(os.listdir("."))
-    
+
+    # append files to mdfmonitor instance
+    monitor.add_files(os.listdir("."))
+
     # start watch using with sentence
     # you can write anything under for sentence.
-    # If watcher catch file modification, watcher run anything you written
-    for mdf in watcher.watch():
-        
+    # If mdfmonitor catch file modification, mdfmonitor run anything you written
+    for mdf in monitor.monitor():
+
         print mdf.file.center(30, "=")
         print "Catch the Modification!!"
         print "Old timestamp: %s" % mdf.old_mtime
@@ -81,17 +87,17 @@ class ModificationMonitor(object):
         # check filelist is list type
         if not isinstance(filelist, list):
             raise TypeError("request the list type.")
-        
+
         for file in filelist:
             self.add_file(file)    
 
     def monitor(self, sleep=5):
-        
+
         manager = FileModificationObjectManager()
-        
+
         timestamps = {}
         filebodies = {}
-        
+
         # register original timestamp and filebody to dict
         for file in self.f_repository:
             timestamps[file] = self._get_mtime(file)
@@ -102,47 +108,47 @@ class ModificationMonitor(object):
 
             # file modification to object
             for file in self.f_repository:
-                
+
                 mtime = timestamps[file]
                 fbody = filebodies[file]
-                
+
                 checker = self._check_modify(file, mtime, fbody)
-                
+
                 # file not modify -> continue
                 if not checker:
                     continue
-                
+
                 # file modifies -> create the modification object
-                
+
                 new_mtime = self._get_mtime(file)
                 new_fbody = open(file).read()
-                
+
                 obj = FileModificationObject(
                         file,
                         (mtime, new_mtime),
                         (fbody, new_fbody) )
-                
+
                 # overwrite new timestamp and filebody
                 timestamps[file] = new_mtime
                 filebodies[file] = new_fbody
-                
+
 
                 # append file modification object to manager
                 manager.add_object(obj)
 
              # return new modification object
                 yield obj
-                
+
             time.sleep(sleep)
-            
-            
+
+
     def _get_mtime(self, file):
-        
+
         return os.stat(file).st_mtime
-        
-        
+
+
     def _check_modify(self, file, o_mtime, o_fbody):
-        
+
         n_mtime = self._get_mtime(file)
         n_fbody = open(file).read()
 
@@ -184,22 +190,22 @@ class FileModificationObjectManager(object):
 
         if not self.__is_iterable:
             raise TypeError(
-                        "'%s' object is not iterable" % self.__class__.__name__)
-        return self
+                    "'%s' object is not iterable" % self.__class__.__name__)
+            return self
 
     def next(self):
 
         if not self.__is_iterable:
             raise TypeError(
-                        "'%s' object is not iterable" % self.__class__.__name__)
+                    "'%s' object is not iterable" % self.__class__.__name__)
 
-        if self.__r_pointer == len(self.o_repository):
-            raise StopIteration
+            if self.__r_pointer == len(self.o_repository):
+                raise StopIteration
 
         result = self.o_repository[self.__r_pointer]
         self.__r_pointer += 1
         return result
-        
+
     def __next__(self):
 
         return self.next()
@@ -229,11 +235,11 @@ class FileModificationObject(object):
         contents = []
 
         for line  in difflib.unified_diff(
-                        self.old_fbody.splitlines(),
-                        self.new_fbody.splitlines(),
-                        "old/"+self.file, "new/"+self.file,
-                        self._strftime(self.old_mtime),
-                        self._strftime(self.new_mtime)):
+                self.old_fbody.splitlines(),
+                self.new_fbody.splitlines(),
+                "old/"+self.file, "new/"+self.file,
+                self._strftime(self.old_mtime),
+                self._strftime(self.new_mtime)):
 
             contents.append(line)
 
