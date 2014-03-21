@@ -40,11 +40,18 @@ class DuplicationError(BaseException):
     pass
 
 class ModificationMonitor(object):
-
     """The ModificationMonitor can monitoring file modification.
+    usage:
 
-    
-
+    it's simple.
+    1. Create instance (call this instance `monitor` from now).
+    2. Append file to instance using `add_file` or `add_files` method.
+       Monitor has a file repository, monitor append file to repository using 
+       `add_file` method. Please put a file name to argument. If you use 
+       `add_files` method and put list of file to argument, Monitor append 
+       files to repository.
+    3. Run monitor uring `monitor` method.
+       The `monitor` method is generator, return FileModificationObject.
 
     """
 
@@ -53,6 +60,14 @@ class ModificationMonitor(object):
         self.f_repository = []
 
     def add_file(self, file, **kwargs):
+        """Append a file to file repository.
+
+        For file monitoring, monitor instance needs file.
+        Please put the name of file to `file` argument.
+
+        :param file: the name of file you want monitor.
+
+        """
 
         if os.access(file, os.F_OK):
 
@@ -66,6 +81,13 @@ class ModificationMonitor(object):
 
 
     def add_files(self, filelist, **kwargs):
+        """Append files to file repository.
+        
+        ModificationMonitor can append files to repository using this.
+        Please put the list of file names to `filelist` argument.
+
+        :param filelist: the list of file nmaes
+        """
 
         # check filelist is list type
         if not isinstance(filelist, list):
@@ -75,6 +97,19 @@ class ModificationMonitor(object):
             self.add_file(file)    
 
     def monitor(self, sleep=5):
+        """Run file modification monitor.
+
+        The monitor can catch file modification using timestamp and file body.
+        Monitor has timestamp data and file body data. And insert timestamp 
+        data and file body data before into while roop. In while roop, monitor 
+        get new timestamp and file body, and then monitor compare new timestamp
+        to originaltimestamp. If new timestamp and file body differ original,
+        monitor regard thease changes as `modification`. Then monitor create
+        FileModificationObject, yield this object.
+
+        :param sleep: How times do you sleep in while roop.
+        """
+
 
         manager = FileModificationObjectManager()
 
@@ -149,6 +184,9 @@ class ModificationMonitor(object):
 
 
 class FileModificationObjectManager(object):
+    """
+
+    """
 
     def __init__(self):
 
