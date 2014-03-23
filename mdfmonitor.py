@@ -241,6 +241,15 @@ class FileModificationObjectManager(object):
         self.__r_pointer = offset
 
 class FileModificationObject(object):
+    """The FileModificationObject has any element of file modification.
+
+    The object can generate difference of old and new file body Because object
+    has old and new file body. 
+
+    :param file: file name
+    :param t_mtime: this is tuple of old and new timestamp.
+    :param t_fbody: this is tuple of old and new file body.
+    """
 
     def __init__(self, file, t_mtime, t_fbody):
 
