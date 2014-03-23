@@ -99,13 +99,15 @@ class ModificationMonitor(object):
     def monitor(self, sleep=5):
         """Run file modification monitor.
 
-        The monitor can catch file modification using timestamp and file body.
+        The monitor can catch file modification using timestamp and file body. 
         Monitor has timestamp data and file body data. And insert timestamp 
         data and file body data before into while roop. In while roop, monitor 
         get new timestamp and file body, and then monitor compare new timestamp
         to originaltimestamp. If new timestamp and file body differ original,
         monitor regard thease changes as `modification`. Then monitor create
-        FileModificationObject, yield this object.
+        instance of FileModificationObjectManager and FileModificationObject,
+        and monitor insert FileModificationObject to FileModificationObject-
+        Manager. Then, yield this object.
 
         :param sleep: How times do you sleep in while roop.
         """
@@ -184,8 +186,11 @@ class ModificationMonitor(object):
 
 
 class FileModificationObjectManager(object):
-    """
+    """This manager manages file modification objects.
 
+    Manager has a history list of FileModificationObject. Object can refer to 
+    any object what above or below position. Maager is iterable if manager was
+    added object. If manager has not any object, manager is not iterable.
     """
 
     def __init__(self):
