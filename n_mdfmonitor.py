@@ -39,7 +39,7 @@ class DuplicationError(BaseException):
 
     pass
 
-class ModificationMonitor(object):
+class FileModificationMonitor(object):
     """The ModificationMonitor can monitoring file modification.
     usage:
 
