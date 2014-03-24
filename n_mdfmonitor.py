@@ -31,14 +31,29 @@ import os
 import sys
 import time
 import difflib
+import requests
+
+from dateutil import parser
+from dateutil import tz
 
 __version__ = "0.1.1b"
 
+#
+# Error Classes
+# --------------------------
 class DuplicationError(BaseException):
-    """Raise this Error if you add duplication file."""
+    """Raise this Error if you add duplication something."""
 
     pass
 
+class StatusError(BaseException):
+    """Raise this Error if url return invalid status code."""
+
+    pass
+
+#
+# The Monitor classes of File Modification
+# ---------------------------------------------
 class FileModificationMonitor(object):
     """The ModificationMonitor can monitoring file modification.
     usage:
@@ -126,16 +141,15 @@ class FileModificationMonitor(object):
 
         while True:
 
-            # file modification to object
             for file in self.f_repository:
 
                 mtime = timestamps[file]
                 fbody = filebodies[file]
 
-                checker = self._check_modify(file, mtime, fbody)
+                modified = self._check_modify(file, mtime, fbody)
 
                 # file not modify -> continue
-                if not checker:
+                if not modified:
                     continue
 
                 # file modifies -> create the modification object
@@ -282,5 +296,112 @@ class FileModificationObject(object):
 
     def _strftime(self, etime):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
+
+
+#
+# The Monitor classes of URL Modification
+# ---------------------------------------------
+class URLModificationMonitor(object):
+
+    def __init__(self):
+
+        self.url_repository = []
+
+    def add_url(self, url, **kwargs):
+
+        if url in self.url_repository:
+            raise DuplicationError("url already added.")
+
+        if not self._is_status(url, 200):
+            raise StatusError("This URL didn't return 200 status code.")
+
+        self.url_repository.append(url)
+
+    def add_urls(self, urllist, **kwargs):
+
+        # check urllist is list type
+        if not isinstance(urllist, list):
+            raise TypeError("request the list type.")
+
+        for url in urllist:
+            self.add_url(url)
+
+    def monitor(self, sleep=5):
+
+        manager = URLModificationObjectManager()
+
+        datestamps = {}
+        respbodies = {}
+
+        # register original datestamp and htmlbody to dict
+        for url in self.url_repository:
+            datestamps[url] = self._get_dtime(url)
+            respbodies[url] = self._access(url).text
+
+        while True:
+
+            for url in self.url_repository:
+
+                dtime = datestamps[url]
+                rbody = respbodies[url]
+
+                modified = self._check_modify(url, dtime, rbody)
+
+                if not modified:
+                    continue
+
+                new_dtime = self._get_dtime(url)
+                new_rbody = self._access(url).text
+
+                obj = URLModificationObject(
+                        url,
+                        (dtime, new_dtime),
+                        (rbody, new_rbody) )
+
+                datestamps[url] = new_dtime
+                respbodies[url] = new_rbody
+
+                manager.add_object(obj)
+
+            yield obj
+
+        time.sleep(sleep)
+
+    def _is_status(self, url, status_code):
+
+        return self._access(url).status_code == status_code
+    
+    def _get_dtime(self, url):
+
+        # parse header's date to datetime object
+        o_date = parser(self._access(url).headers["date"])
+
+        # change timezone from GMT to local timezone
+        return o_date.astimeozne(tz.tzlocal())
+
+    def _check_modify(self, url, o_dtime, o_rbody):
+
+        n_dtime = self._get_dtime(url)
+        n_rbody = self._access(url).text
+
+        if n_dtime == o_dtime:
+            return False
+
+        else:
+
+            if n_rbody == o_rbody:
+                return False
+
+            else:
+
+                return True
+
+    def _access(self, url):
+
+        return requests.get(url)
+
+        
+
+
 
 
