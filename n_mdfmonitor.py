@@ -199,10 +199,10 @@ class FileModificationMonitor(object):
                 return True
 
 
-class FileModificationObjectManager(object):
-    """This manager manages file modification objects.
+class ModificationObjectManager(object):
+    """This manager manages  modification objects.
 
-    Manager has a history list of FileModificationObject. Object can refer to 
+    Manager has a history list of ModificationObject. Object can refer to 
     any object what above or below position. Maager is iterable if manager was
     added object. If manager has not any object, manager is not iterable.
     """
@@ -328,7 +328,7 @@ class URLModificationMonitor(object):
 
     def monitor(self, sleep=5):
 
-        manager = URLModificationObjectManager()
+        manager = ModificationObjectManager()
 
         datestamps = {}
         respbodies = {}
