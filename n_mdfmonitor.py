@@ -170,7 +170,7 @@ class FileModificationMonitor(object):
                 # append file modification object to manager
                 manager.add_object(obj)
 
-             # return new modification object
+                # return new modification object
                 yield obj
 
             time.sleep(sleep)
@@ -269,8 +269,8 @@ class FileModificationObject(object):
 
         self.file = file
 
-        self.new_mtime, self.old_mtime = t_mtime
-        self.new_fbody, self.old_fbody = t_fbody
+        self.old_mtime, self.new_mtime = t_mtime
+        self.old_fbody, self.new_fbody = t_fbody
 
         self.manager = None
         self.diff = self._diffgen()
@@ -363,7 +363,7 @@ class URLModificationMonitor(object):
 
                 manager.add_object(obj)
 
-            yield obj
+                yield obj
 
         time.sleep(sleep)
 
@@ -374,10 +374,10 @@ class URLModificationMonitor(object):
     def _get_dtime(self, url):
 
         # parse header's date to datetime object
-        o_date = parser(self._access(url).headers["date"])
+        o_date = parser.parse(self._access(url).headers["date"])
 
         # change timezone from GMT to local timezone
-        return o_date.astimeozne(tz.tzlocal())
+        return o_date.astimezone(tz.tzlocal())
 
     def _check_modify(self, url, o_dtime, o_rbody):
 
@@ -416,8 +416,8 @@ class URLModificationObject(object):
 
         self.url = url
 
-        self.new_dtime, self.old_dtime = t_dtime
-        self.new_rbody, self.old_rbody = t_rbody
+        self.old_dtime, self.new_dtime = t_dtime
+        self.old_rbody, self.new_rbody = t_rbody
 
         self.manager = None
         self.diff = self._diffgen()
@@ -433,7 +433,7 @@ class URLModificationObject(object):
         for line  in difflib.unified_diff(
                 self.old_rbody.splitlines(),
                 self.new_rbody.splitlines(),
-                "old/"+self.file, "new/"+self.file,
+                "old/"+self.url, "new/"+self.url,
                 self._strftime(self.old_dtime),
                 self._strftime(self.new_dtime)):
 
@@ -442,7 +442,7 @@ class URLModificationObject(object):
         return "\n".join(contents)
 
     def _strftime(self, etime):
-        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
+        return etime.strftime('%Y-%m-%d %H:%M:%S')
 
 
 
