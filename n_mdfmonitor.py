@@ -401,6 +401,49 @@ class URLModificationMonitor(object):
         return requests.get(url)
 
         
+class URLModificationObject(object):
+    """The URLModificationObject has any element of url modification.
+
+    The object can generate difference of old and new html body Because object
+    has old and new html body. 
+
+    :param url: file name
+    :param t_dtime: this is tuple of old and new timestamp.
+    :param t_rbody: this is tuple of old and new file body.
+    """
+
+    def __init__(self, url, t_dtime, t_rbody):
+
+        self.url = url
+
+        self.new_dtime, self.old_dtime = t_dtime
+        self.new_rbody, self.old_rbody = t_rbody
+
+        self.manager = None
+        self.diff = self._diffgen()
+
+    def _set_manager(self, manager):
+
+        self.manager = manager
+
+    def _diffgen(self):
+
+        contents = []
+
+        for line  in difflib.unified_diff(
+                self.old_rbody.splitlines(),
+                self.new_rbody.splitlines(),
+                "old/"+self.file, "new/"+self.file,
+                self._strftime(self.old_dtime),
+                self._strftime(self.new_dtime)):
+
+            contents.append(line)
+
+        return "\n".join(contents)
+
+    def _strftime(self, etime):
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
+
 
 
 
