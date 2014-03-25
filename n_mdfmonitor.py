@@ -51,6 +51,12 @@ class StatusError(BaseException):
 
     pass
 
+class ConnectionError(requests.exceptions.ConnectionError):
+    """Raise this Error if monitor can't connect url server.
+    This Error inherit requests.exceptions.ConnectionError."""
+
+    pass
+
 #
 # The Monitor classes of File Modification
 # ---------------------------------------------
@@ -326,7 +332,7 @@ class URLModificationMonitor(object):
         for url in urllist:
             self.add_url(url)
 
-    def monitor(self, sleep=5):
+    def monitor(self, sleep=60):
 
         manager = ModificationObjectManager()
 
@@ -365,7 +371,7 @@ class URLModificationMonitor(object):
 
                 yield obj
 
-        time.sleep(sleep)
+            time.sleep(sleep)
 
     def _is_status(self, url, status_code):
 
@@ -398,7 +404,17 @@ class URLModificationMonitor(object):
 
     def _access(self, url):
 
-        return requests.get(url)
+        header = {"User-Agent": \
+                        "URLModificationMonitor/" + \
+                        "%s " % __version__ + \
+                        "(about me: https://github.com/alice1017/mdfmonitor)"}
+
+        try:
+            return requests.get(url, headers=header)
+
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Monitor can't connect the server of url you added.")
+                
 
         
 class URLModificationObject(object):
