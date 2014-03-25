@@ -36,7 +36,7 @@ import requests
 from dateutil import parser
 from dateutil import tz
 
-__version__ = "0.1.1b"
+__version__ = "0.1.2b"
 
 #
 # Error Classes
