@@ -31,15 +31,36 @@ import os
 import sys
 import time
 import difflib
+import requests
+
+from dateutil import parser
+from dateutil import tz
 
 __version__ = "0.1.1b"
 
+#
+# Error Classes
+# --------------------------
 class DuplicationError(BaseException):
-    """Raise this Error if you add duplication file."""
+    """Raise this Error if you add duplication something."""
 
     pass
 
-class ModificationMonitor(object):
+class StatusError(BaseException):
+    """Raise this Error if url return invalid status code."""
+
+    pass
+
+class ConnectionError(requests.exceptions.ConnectionError):
+    """Raise this Error if monitor can't connect url server.
+    This Error inherit requests.exceptions.ConnectionError."""
+
+    pass
+
+#
+# The Monitor classes of File Modification
+# ---------------------------------------------
+class FileModificationMonitor(object):
     """The ModificationMonitor can monitoring file modification.
     usage:
 
@@ -126,16 +147,15 @@ class ModificationMonitor(object):
 
         while True:
 
-            # file modification to object
             for file in self.f_repository:
 
                 mtime = timestamps[file]
                 fbody = filebodies[file]
 
-                checker = self._check_modify(file, mtime, fbody)
+                modified = self._check_modify(file, mtime, fbody)
 
                 # file not modify -> continue
-                if not checker:
+                if not modified:
                     continue
 
                 # file modifies -> create the modification object
@@ -156,7 +176,7 @@ class ModificationMonitor(object):
                 # append file modification object to manager
                 manager.add_object(obj)
 
-             # return new modification object
+                # return new modification object
                 yield obj
 
             time.sleep(sleep)
@@ -185,10 +205,10 @@ class ModificationMonitor(object):
                 return True
 
 
-class FileModificationObjectManager(object):
-    """This manager manages file modification objects.
+class ModificationObjectManager(object):
+    """This manager manages  modification objects.
 
-    Manager has a history list of FileModificationObject. Object can refer to 
+    Manager has a history list of ModificationObject. Object can refer to 
     any object what above or below position. Maager is iterable if manager was
     added object. If manager has not any object, manager is not iterable.
     """
@@ -255,8 +275,8 @@ class FileModificationObject(object):
 
         self.file = file
 
-        self.new_mtime, self.old_mtime = t_mtime
-        self.new_fbody, self.old_fbody = t_fbody
+        self.old_mtime, self.new_mtime = t_mtime
+        self.old_fbody, self.new_fbody = t_fbody
 
         self.manager = None
         self.diff = self._diffgen()
@@ -282,5 +302,165 @@ class FileModificationObject(object):
 
     def _strftime(self, etime):
         return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(etime))
+
+
+#
+# The Monitor classes of URL Modification
+# ---------------------------------------------
+class URLModificationMonitor(object):
+
+    def __init__(self):
+
+        self.url_repository = []
+
+    def add_url(self, url, **kwargs):
+
+        if url in self.url_repository:
+            raise DuplicationError("url already added.")
+
+        if not self._is_status(url, 200):
+            raise StatusError("This URL didn't return 200 status code.")
+
+        self.url_repository.append(url)
+
+    def add_urls(self, urllist, **kwargs):
+
+        # check urllist is list type
+        if not isinstance(urllist, list):
+            raise TypeError("request the list type.")
+
+        for url in urllist:
+            self.add_url(url)
+
+    def monitor(self, sleep=60):
+
+        manager = ModificationObjectManager()
+
+        datestamps = {}
+        respbodies = {}
+
+        # register original datestamp and htmlbody to dict
+        for url in self.url_repository:
+            datestamps[url] = self._get_dtime(url)
+            respbodies[url] = self._access(url).text
+
+        while True:
+
+            for url in self.url_repository:
+
+                dtime = datestamps[url]
+                rbody = respbodies[url]
+
+                modified = self._check_modify(url, dtime, rbody)
+
+                if not modified:
+                    continue
+
+                new_dtime = self._get_dtime(url)
+                new_rbody = self._access(url).text
+
+                obj = URLModificationObject(
+                        url,
+                        (dtime, new_dtime),
+                        (rbody, new_rbody) )
+
+                datestamps[url] = new_dtime
+                respbodies[url] = new_rbody
+
+                manager.add_object(obj)
+
+                yield obj
+
+            time.sleep(sleep)
+
+    def _is_status(self, url, status_code):
+
+        return self._access(url).status_code == status_code
+    
+    def _get_dtime(self, url):
+
+        # parse header's date to datetime object
+        o_date = parser.parse(self._access(url).headers["date"])
+
+        # change timezone from GMT to local timezone
+        return o_date.astimezone(tz.tzlocal())
+
+    def _check_modify(self, url, o_dtime, o_rbody):
+
+        n_dtime = self._get_dtime(url)
+        n_rbody = self._access(url).text
+
+        if n_dtime == o_dtime:
+            return False
+
+        else:
+
+            if n_rbody == o_rbody:
+                return False
+
+            else:
+
+                return True
+
+    def _access(self, url):
+
+        header = {"User-Agent": \
+                        "URLModificationMonitor/" + \
+                        "%s " % __version__ + \
+                        "(about me: https://github.com/alice1017/mdfmonitor)"}
+
+        try:
+            return requests.get(url, headers=header)
+
+        except requests.exceptions.ConnectionError:
+            raise ConnectionError("Monitor can't connect the server of url you added.")
+                
+
+        
+class URLModificationObject(object):
+    """The URLModificationObject has any element of url modification.
+
+    The object can generate difference of old and new html body Because object
+    has old and new html body. 
+
+    :param url: file name
+    :param t_dtime: this is tuple of old and new timestamp.
+    :param t_rbody: this is tuple of old and new file body.
+    """
+
+    def __init__(self, url, t_dtime, t_rbody):
+
+        self.url = url
+
+        self.old_dtime, self.new_dtime = t_dtime
+        self.old_rbody, self.new_rbody = t_rbody
+
+        self.manager = None
+        self.diff = self._diffgen()
+
+    def _set_manager(self, manager):
+
+        self.manager = manager
+
+    def _diffgen(self):
+
+        contents = []
+
+        for line  in difflib.unified_diff(
+                self.old_rbody.splitlines(),
+                self.new_rbody.splitlines(),
+                "old/"+self.url, "new/"+self.url,
+                self._strftime(self.old_dtime),
+                self._strftime(self.new_dtime)):
+
+            contents.append(line)
+
+        return "\n".join(contents)
+
+    def _strftime(self, etime):
+        return etime.strftime('%Y-%m-%d %H:%M:%S')
+
+
+
 
 
