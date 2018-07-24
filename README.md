@@ -1,3 +1,6 @@
+# ATTENTION
+This project has deprecated, and inherited to the **[JustWatch](https://github.com/alice1017/justwatch) project.**
+
 # mdfmonitor - Monitor the file moification
 
 The **mdfmonitor** is Python module about monitoring files modification using timestamp and body.
